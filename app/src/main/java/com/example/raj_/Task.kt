@@ -11,6 +11,7 @@ data class Task(
     @ColumnInfo(name = "description") var description: String,
     @ColumnInfo(name = "amount") var amount: String,
     @ColumnInfo(name = "time") var time: String,
+    @ColumnInfo(name = "date") var date: String,
 
     ) {
 
