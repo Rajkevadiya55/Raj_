@@ -3,8 +3,6 @@ package com.example.raj_.Adapter
 import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.AlertDialog
-import android.app.DatePickerDialog
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -16,7 +14,6 @@ import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
-import androidx.core.app.NotificationManagerCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.raj_.AlarmReceiver
 import com.example.raj_.R
@@ -25,7 +22,6 @@ import com.example.raj_.TaskDB
 import com.example.raj_.TaskDetailsActivity
 
 class TaskAdapter(list: List<Task>) : RecyclerView.Adapter<TaskAdapter.TaskHolder>() {
-
 
     var list = list
     lateinit var db: TaskDB
@@ -37,9 +33,8 @@ class TaskAdapter(list: List<Task>) : RecyclerView.Adapter<TaskAdapter.TaskHolde
         var box = itemView.findViewById<CheckBox>(R.id.box)
         var time = itemView.findViewById<TextView>(R.id.time)
         var date = itemView.findViewById<TextView>(R.id.date)
-      //  val menu: ImageView = itemView.findViewById(R.id.mmenu)
-
-
+      //  var delete = itemView.findViewById<ImageView>(R.id.taskdelete)
+        //  val menu: ImageView = itemView.findViewById(R.id.mmenu)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskHolder {
@@ -60,6 +55,7 @@ class TaskAdapter(list: List<Task>) : RecyclerView.Adapter<TaskAdapter.TaskHolde
 
         holder.contact.text = list.get(position).contact
 
+
         val timeArray = task.time.split(":")
         val hour = timeArray[0].toInt()
         val minute = timeArray[1].toInt()
@@ -78,55 +74,58 @@ class TaskAdapter(list: List<Task>) : RecyclerView.Adapter<TaskAdapter.TaskHolde
             holder.date.text = formattedDate
         }
 
-        // Handle item click to show task details
         holder.itemView.setOnClickListener {
+            // Handle regular click event here
             val intent = Intent(context, TaskDetailsActivity::class.java).apply {
                 putExtra("number", task.contact)
                 putExtra("amount", task.amount)
                 putExtra("description", task.description)
                 putExtra("time", formattedTime)
+                Log.e("ddd", "onBindViewHolder: " + task.contact)
             }
             context.startActivity(intent)
         }
-
-        // Handle menu click to show popup menu
-     /*   holder.menu.setOnClickListener { view ->
-            showPopupMenu(view, position)
-        }*/
-    }
-
- /*   @SuppressLint("MissingInflatedId")
-    private fun showPopupMenu(view: View, position: Int) {
-        val popupMenu = PopupMenu(context, view)
-        popupMenu.inflate(R.menu.item_menu)
-        popupMenu.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.delete -> {
-                    AlertDialog.Builder(context)
-                        .setTitle("Delete")
-                        .setMessage("Are you sure you want to delete this information?")
-                        .setPositiveButton("Yes") { dialog, _ ->
-                            val task = list[position]
-                            db.taskDao().deletetask(task)
-                            list = list.filterIndexed { index, _ -> index != position }
-                            notifyDataSetChanged()
-                            dialog.dismiss()
-                        }
-                        .setNegativeButton("No") { dialog, _ ->
-                            dialog.dismiss()
-                        }
-                        .create()
-                        .show()
-                    true
-                }
-
-                else -> false
+        /*holder.delete.setOnClickListener {
+            val alertDialogBuilder = AlertDialog.Builder(context)
+            alertDialogBuilder.setTitle("Delete Task")
+            alertDialogBuilder.setMessage("Are you sure you want to delete this task?")
+            alertDialogBuilder.setPositiveButton("Delete") { _, _ ->
+                // Handle the delete action here
+                val task = list[position]
+                db.taskDao().deletetask(task)
+                list = db.taskDao().getTasks()
+                notifyItemRemoved(position)
             }
+            alertDialogBuilder.setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            val alertDialog = alertDialogBuilder.create()
+            alertDialog.show()
+            true
         }
-        popupMenu.show()
+        }
     }*/
 
 
-}
 
+        holder.itemView.setOnLongClickListener {
+            val alertDialogBuilder = AlertDialog.Builder(context)
+            alertDialogBuilder.setTitle("Delete Task")
+            alertDialogBuilder.setMessage("Are you sure you want to delete this task?")
+            alertDialogBuilder.setPositiveButton("Delete") { _, _ ->
+                // Handle the delete action here
+                val task = list[position]
+                db.taskDao().deletetask(task)
+                list = db.taskDao().getTasks()
+                notifyItemRemoved(position)
+            }
+            alertDialogBuilder.setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            val alertDialog = alertDialogBuilder.create()
+            alertDialog.show()
+            true
+        }
+    }
+}
 

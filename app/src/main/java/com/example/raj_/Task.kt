@@ -12,9 +12,7 @@ data class Task(
     @ColumnInfo(name = "amount") var amount: String,
     @ColumnInfo(name = "time") var time: String,
     @ColumnInfo(name = "date") var date: String,
-
-    ) {
-
+) {
     @PrimaryKey(autoGenerate = true)
     var id = 0
 }
