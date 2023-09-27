@@ -12,15 +12,15 @@ class TaskDetailsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_task_details)
 
 
-         val number = intent.getStringExtra("number")
+        val number = intent.getStringExtra("number")
         val amount = intent.getStringExtra("amount")
         val description = intent.getStringExtra("description")
         val time = intent.getStringExtra("time")
 
-        Log.e("raj", "Contact :" + number )
-        Log.e("raj1", "Amount :" + amount )
-        Log.e("raj2", "Description :" + description )
-        Log.e("raj3", "Time :" + time )
+        Log.e("raj", "Contact :" + number)
+        Log.e("raj1", "Amount :" + amount)
+        Log.e("raj2", "Description :" + description)
+        Log.e("raj3", "Time :" + time)
 
 
         // Now you can use these values to populate your activity's views
@@ -36,5 +36,5 @@ class TaskDetailsActivity : AppCompatActivity() {
         timeTextView.text = time
     }
 
-    }
+}
 

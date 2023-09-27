@@ -12,28 +12,25 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.util.Log
-import android.widget.Button
-import android.widget.DatePicker
-import android.widget.EditText
-import android.widget.TimePicker
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.raj_.Adapter.TaskAdapter
 import com.example.raj_.databinding.ActivityMainBinding
-import java.util.Calendar
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
+
     lateinit var db: TaskDB
     lateinit var binding: ActivityMainBinding
-    lateinit var adapter: TaskAdapter
+    lateinit var adapter: TaskAdapter //    private var dialog: AlertDialog? = null
 
     private val PICK_CONTACT_REQUEST = 2
+    // val RQS_1 = 1
 
     private lateinit var alarmManager: AlarmManager
     private lateinit var notificationManager: NotificationManagerCompat
@@ -43,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     private val READ_CONTACTS_PERMISSION_REQUEST = 1
 
     var repeat: Boolean = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +67,7 @@ class MainActivity : AppCompatActivity() {
                 READ_CONTACTS_PERMISSION_REQUEST
             )
         }
+
     }
 
     private fun initViews() {
@@ -92,24 +91,56 @@ class MainActivity : AppCompatActivity() {
         layoutManager.stackFromEnd = true
         binding.rcvrecycle.layoutManager = layoutManager
         binding.rcvrecycle.adapter = adapter
-
     }
 
+    //    @SuppressLint("ScheduleExactAlarm")
+//    private fun setAlarm(targetCal: Calendar, contact: String, amount: String,requestCode: Int) {
+//        val intent = Intent(baseContext, AlarmReceiver::class.java).apply {
+//            putExtra("contact", contact)
+//            putExtra("amount", amount)
+//        }
+////        val requestCode = System.currentTimeMillis().toInt() // Generate a unique requestCode
+//        val pendingIntent = PendingIntent.getBroadcast(
+//            baseContext,
+//            requestCode,
+//            intent,
+//            PendingIntent.FLAG_IMMUTABLE
+//
+//        )
+//        Log . d ("Alarmset", "set alarm for task with ID: $requestCode")
+//
+//        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+//            alarmManager.setExactAndAllowWhileIdle(
+//                AlarmManager.RTC_WAKEUP,
+//                targetCal.timeInMillis,
+//                pendingIntent
+//            )
+//        } else {
+//            alarmManager.setExact(AlarmManager.RTC_WAKEUP, targetCal.timeInMillis, pendingIntent)
+//        }
+//
+//    }
     @SuppressLint("ScheduleExactAlarm")
-    private fun setAlarm(targetCal: Calendar, contact: String, amount: String) {
+    private fun setAlarm(targetCal: Calendar, contact: String, amount: String, alarmId: Long) {
         val intent = Intent(baseContext, AlarmReceiver::class.java).apply {
             putExtra("contact", contact)
             putExtra("amount", amount)
         }
-        val requestCode = System.currentTimeMillis().toInt() // Generate a unique requestCode
+        Log.e("diviiii", "cancelAlarmForTask: " + alarmId)
+
+        val requestCode = alarmId.toInt()
+
         val pendingIntent = PendingIntent.getBroadcast(
             baseContext,
             requestCode,
             intent,
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE // Add FLAG_IMMUTABLE
         )
-        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+
+        val alarmManager = baseContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 targetCal.timeInMillis,
@@ -120,6 +151,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun generateUniqueAlarmId(): Long {
+        return System.currentTimeMillis()
+    }
+
     private fun showAddTaskDialog() {
         val dialogView = layoutInflater.inflate(R.layout.add_task_dailog, null)
         val numberButton = dialogView.findViewById<Button>(R.id.btnnumber)
@@ -127,7 +162,7 @@ class MainActivity : AppCompatActivity() {
         val amountEditText = dialogView.findViewById<EditText>(R.id.edtamout)
         val timePicker = dialogView.findViewById<TimePicker>(R.id.time)
         val datePicker = dialogView.findViewById<DatePicker>(R.id.datePicker)
-
+        val requestcode = System.currentTimeMillis().toInt()
         contactEdittext = dialogView.findViewById<EditText>(R.id.set_contact)
         val dialog = AlertDialog.Builder(this)
             .setTitle("Add Task")
@@ -140,14 +175,23 @@ class MainActivity : AppCompatActivity() {
                 val minute = timePicker.minute
                 val year = datePicker.year
                 val month = datePicker.month
-
                 val day = datePicker.dayOfMonth
                 val selectedDate = String.format("%04d-%02d-%02d", year, month + 1, day)
                 val time = String.format("%02d:%02d", hour, minute)
+//                val requestcode = System.currentTimeMillis().toInt()
 
 
                 if (contact.isNotBlank()) {
-                    val newTask = Task(contact, description, amount, time, selectedDate)
+
+
+//                    val newTask =
+//                        Task(requestcode, contact, description, amount, time, selectedDate)
+//                    db.taskDao().insertTask(newTask)
+
+
+                    val alarmId = generateUniqueAlarmId()
+
+                    val newTask = Task(contact, description, amount, time, selectedDate, alarmId)
                     db.taskDao().insertTask(newTask)
                     val calNow = Calendar.getInstance()
                     val calSet = calNow.clone() as Calendar
@@ -167,10 +211,17 @@ class MainActivity : AppCompatActivity() {
                         calSet.add(Calendar.DATE, 1)
                     }
 
-                    setAlarm(calSet, contact, amount)
+
+
+
+                    setAlarm(calSet, contact, amount, alarmId)
+/*
+                    setAlarm(calSet, contact, amount, requestcode)
+*/
                     refreshActivity()
                     binding.rcvrecycle.scrollToPosition(0)
                     //  finish()
+
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -184,6 +235,7 @@ class MainActivity : AppCompatActivity() {
 
         dialog.show()
     }
+
 
     @SuppressLint("Range")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -225,7 +277,7 @@ class MainActivity : AppCompatActivity() {
                                 contactEdittext.setText(displayName)
                             }
                         }
-
+                        2
                         phoneCursor?.close()
                     }
                 }
@@ -248,6 +300,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshActivity() {
+
         recreate()
     }
 }

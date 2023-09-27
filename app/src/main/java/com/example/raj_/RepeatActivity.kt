@@ -6,17 +6,19 @@ import android.app.PendingIntent
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import com.example.raj_.databinding.ActivityRepeatBinding
 
 class RepeatActivity : AppCompatActivity() {
+
     lateinit var binding: ActivityRepeatBinding
-    var requestCodeCounter = 0
+    var requestCodeCounter=0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRepeatBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         binding.minit10.setOnClickListener {
             val contact = intent.getStringExtra("contact")
             val amount = intent.getStringExtra("amount")
@@ -25,7 +27,6 @@ class RepeatActivity : AppCompatActivity() {
             Toast.makeText(this, "10 minutes", Toast.LENGTH_SHORT).show()
             finish()
         }
-
         binding.minit20.setOnClickListener {
             val contact = intent.getStringExtra("contact")
             val amount = intent.getStringExtra("amount")
@@ -53,6 +54,7 @@ class RepeatActivity : AppCompatActivity() {
             finish()
         }
     }
+
 
     @SuppressLint("ScheduleExactAlarm")
     private fun setRepeatingAlarm(
@@ -94,4 +96,3 @@ class RepeatActivity : AppCompatActivity() {
         }
     }
 }
-

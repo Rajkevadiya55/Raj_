@@ -1,6 +1,5 @@
 package com.example.raj_.Adapter
 
-import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.PendingIntent
@@ -12,18 +11,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageView
-import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.raj_.AlarmReceiver
-import com.example.raj_.R
-import com.example.raj_.Task
-import com.example.raj_.TaskDB
-import com.example.raj_.TaskDetailsActivity
+import com.example.raj_.*
 
 class TaskAdapter(list: List<Task>) : RecyclerView.Adapter<TaskAdapter.TaskHolder>() {
 
-    var list = list
+  private  var list = list
     lateinit var db: TaskDB
     lateinit var context: Context
 
@@ -33,8 +27,9 @@ class TaskAdapter(list: List<Task>) : RecyclerView.Adapter<TaskAdapter.TaskHolde
         var box = itemView.findViewById<CheckBox>(R.id.box)
         var time = itemView.findViewById<TextView>(R.id.time)
         var date = itemView.findViewById<TextView>(R.id.date)
-      //  var delete = itemView.findViewById<ImageView>(R.id.taskdelete)
+        var delete = itemView.findViewById<ImageView>(R.id.taskdelete)
         //  val menu: ImageView = itemView.findViewById(R.id.mmenu)
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskHolder {
@@ -85,47 +80,105 @@ class TaskAdapter(list: List<Task>) : RecyclerView.Adapter<TaskAdapter.TaskHolde
             }
             context.startActivity(intent)
         }
-        /*holder.delete.setOnClickListener {
+
+//new
+//        holder.delete.setOnClickListener {
+//            val alertDialogBuilder = AlertDialog.Builder(context)
+//            alertDialogBuilder.setTitle("Delete Task")
+//            alertDialogBuilder.setMessage("Are you sure you want to delete this task?")
+//            alertDialogBuilder.setPositiveButton("Delete") { _, _ ->
+//                Log.d("byb b 5 yj", "onBindViewHolder: $list");
+//                val task = list[position]
+//
+//                // Cancel the alarm associated with the deleted task
+//                cancelAlarmForTask(task)
+//
+//                // Delete the task from the database
+//                db.taskDao().deletetask(task)
+//                list = db.taskDao().getTasks()
+//                notifyItemRemoved(position)
+//            }
+//            alertDialogBuilder.setNegativeButton("Cancel") { dialog, _ ->
+//                dialog.dismiss()
+//            }
+//            val alertDialog = alertDialogBuilder.create()
+//            alertDialog.show()
+//        }
+//
+//}
+//    private fun cancelAlarmForTask(task: Task) {
+//        Log.d("hvgyfhkns", "cancelAlarmForTask: "+task)
+//        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+//
+//        // Create an intent to identify the alarm you want to cancel
+//        val intent = Intent(context, AlarmReceiver::class.java)
+//        intent.action = "com.example.raj_.ALARM_ACTION" // Replace with your unique action name
+//
+//        // Use the task's id as the request code for the PendingIntent
+//        val requestCode = task.requestcode
+//
+//        val pendingIntent = PendingIntent.getBroadcast(
+//            context,
+//            requestCode,
+//            intent,
+//            PendingIntent.FLAG_UPDATE_CURRENT
+//        )
+//
+//        // Cancel the alarm
+//        alarmManager.cancel(pendingIntent)
+//
+//        // Log the request code of the canceled alarm
+//        Log.d("AlarmCancel", "Canceled alarm for task with ID: $requestCode")
+//
+//        // Don't forget to unregister the pendingIntent
+//        pendingIntent.cancel()
+//    }
+//    -799318366   set
+//    -799318375  bind
+//    -799318375  delete
+        holder.delete.setOnClickListener {
             val alertDialogBuilder = AlertDialog.Builder(context)
             alertDialogBuilder.setTitle("Delete Task")
             alertDialogBuilder.setMessage("Are you sure you want to delete this task?")
             alertDialogBuilder.setPositiveButton("Delete") { _, _ ->
-                // Handle the delete action here
                 val task = list[position]
+
+                cancelAlarmForTask(task)
                 db.taskDao().deletetask(task)
                 list = db.taskDao().getTasks()
-                notifyItemRemoved(position)
+
+                notifyDataSetChanged()
             }
             alertDialogBuilder.setNegativeButton("Cancel") { dialog, _ ->
                 dialog.dismiss()
             }
             val alertDialog = alertDialogBuilder.create()
             alertDialog.show()
-            true
-        }
-        }
-    }*/
-
-
-
-        holder.itemView.setOnLongClickListener {
-            val alertDialogBuilder = AlertDialog.Builder(context)
-            alertDialogBuilder.setTitle("Delete Task")
-            alertDialogBuilder.setMessage("Are you sure you want to delete this task?")
-            alertDialogBuilder.setPositiveButton("Delete") { _, _ ->
-                // Handle the delete action here
-                val task = list[position]
-                db.taskDao().deletetask(task)
-                list = db.taskDao().getTasks()
-                notifyItemRemoved(position)
-            }
-            alertDialogBuilder.setNegativeButton("Cancel") { dialog, _ ->
-                dialog.dismiss()
-            }
-            val alertDialog = alertDialogBuilder.create()
-            alertDialog.show()
-            true
         }
     }
+
+    private fun cancelAlarmForTask(task: Task) {
+        Log.e("dishii", "cancelAlarmForTask: " + task.alarmId)
+
+        val intent = Intent(context, AlarmReceiver::class.java).apply {
+            putExtra("contact", task.contact)
+            putExtra("amount", task.amount)
+        }
+
+        val requestCode = task.alarmId.toInt()
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            requestCode,
+            intent,
+            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE // Add FLAG_IMMUTABLE
+        )
+
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        // Cancel the alarm
+        alarmManager.cancel(pendingIntent)
+    }
+
 }
 
