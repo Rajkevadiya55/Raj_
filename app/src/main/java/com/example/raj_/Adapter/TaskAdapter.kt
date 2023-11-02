@@ -50,7 +50,6 @@ class TaskAdapter(list: List<Task>) : RecyclerView.Adapter<TaskAdapter.TaskHolde
 
         holder.contact.text = list.get(position).contact
 
-
         val timeArray = task.time.split(":")
         val hour = timeArray[0].toInt()
         val minute = timeArray[1].toInt()
@@ -76,66 +75,23 @@ class TaskAdapter(list: List<Task>) : RecyclerView.Adapter<TaskAdapter.TaskHolde
                 putExtra("amount", task.amount)
                 putExtra("description", task.description)
                 putExtra("time", formattedTime)
-                Log.e("ddd", "onBindViewHolder: " + task.contact)
+                Log.e("rrrrrrr", "onBindViewHolder: " + task.contact)
             }
             context.startActivity(intent)
         }
 
-//new
-//        holder.delete.setOnClickListener {
-//            val alertDialogBuilder = AlertDialog.Builder(context)
-//            alertDialogBuilder.setTitle("Delete Task")
-//            alertDialogBuilder.setMessage("Are you sure you want to delete this task?")
-//            alertDialogBuilder.setPositiveButton("Delete") { _, _ ->
-//                Log.d("byb b 5 yj", "onBindViewHolder: $list");
-//                val task = list[position]
-//
-//                // Cancel the alarm associated with the deleted task
-//                cancelAlarmForTask(task)
-//
-//                // Delete the task from the database
-//                db.taskDao().deletetask(task)
-//                list = db.taskDao().getTasks()
-//                notifyItemRemoved(position)
-//            }
-//            alertDialogBuilder.setNegativeButton("Cancel") { dialog, _ ->
-//                dialog.dismiss()
-//            }
-//            val alertDialog = alertDialogBuilder.create()
-//            alertDialog.show()
-//        }
-//
-//}
-//    private fun cancelAlarmForTask(task: Task) {
-//        Log.d("hvgyfhkns", "cancelAlarmForTask: "+task)
-//        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-//
-//        // Create an intent to identify the alarm you want to cancel
-//        val intent = Intent(context, AlarmReceiver::class.java)
-//        intent.action = "com.example.raj_.ALARM_ACTION" // Replace with your unique action name
-//
-//        // Use the task's id as the request code for the PendingIntent
-//        val requestCode = task.requestcode
-//
-//        val pendingIntent = PendingIntent.getBroadcast(
-//            context,
-//            requestCode,
-//            intent,
-//            PendingIntent.FLAG_UPDATE_CURRENT
-//        )
-//
-//        // Cancel the alarm
-//        alarmManager.cancel(pendingIntent)
-//
-//        // Log the request code of the canceled alarm
-//        Log.d("AlarmCancel", "Canceled alarm for task with ID: $requestCode")
-//
-//        // Don't forget to unregister the pendingIntent
-//        pendingIntent.cancel()
-//    }
-//    -799318366   set
-//    -799318375  bind
-//    -799318375  delete
+        holder.date.setOnClickListener{
+              val alertDialogBuilder = AlertDialog.Builder(context)
+              alertDialogBuilder.setTitle("Delete Task")
+              alertDialogBuilder.setMessage("Are you sure you want to delete this task?")
+             alertDialogBuilder.setPositiveButton("Delete"){_,_->
+                 val task =list[position]
+             }
+        }
+
+
+
+
         holder.delete.setOnClickListener {
             val alertDialogBuilder = AlertDialog.Builder(context)
             alertDialogBuilder.setTitle("Delete Task")
@@ -158,7 +114,7 @@ class TaskAdapter(list: List<Task>) : RecyclerView.Adapter<TaskAdapter.TaskHolde
     }
 
     private fun cancelAlarmForTask(task: Task) {
-        Log.e("dishii", "cancelAlarmForTask: " + task.alarmId)
+        Log.e("raj", "cancelAlarmForTask: " + task.alarmId)
 
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("contact", task.contact)

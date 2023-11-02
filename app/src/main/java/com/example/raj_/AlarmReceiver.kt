@@ -51,7 +51,6 @@ class AlarmReceiver : BroadcastReceiver() {
             }, 10000
         )
     }
-
     @SuppressLint("ServiceCast", "MissingPermission", "UnspecifiedImmutableFlag")
     private fun showNotification(context: Context?, contact: String?, amount: String?) {
         val channelId = "alarm_channel"
